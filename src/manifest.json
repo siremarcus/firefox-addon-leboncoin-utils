@@ -23,14 +23,20 @@
     "default_popup": "popup.html",
     "default_title": "Leboncoin - Masquer des annonces",
     "default_icon": {
+      "32": "icons/icon-32.svg",
       "48": "icons/icon-48.svg",
-      "96": "icons/icon-96.svg"
+      "64": "icons/icon-64.svg",
+      "96": "icons/icon-96.svg",
+      "128": "icons/icon-128.svg"
     }
   },
 
   "icons": {
+    "32": "icons/icon-32.svg",
     "48": "icons/icon-48.svg",
-    "96": "icons/icon-96.svg"
+    "64": "icons/icon-64.svg",
+    "96": "icons/icon-96.svg",
+    "128": "icons/icon-128.svg"
   },
 
   "browser_specific_settings": {

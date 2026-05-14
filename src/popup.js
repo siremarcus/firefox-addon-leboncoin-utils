@@ -1,7 +1,10 @@
+// ─── Storage ────────────────────────────────────────────────────────────────
+
 const STORAGE_KEY = "lbc_hidden_ads";
 
 document.getElementById("version").textContent = `v${browser.runtime.getManifest().version}`;
 
+// Retourne le tableau des annonces masquées, en migrant les anciennes entrées (strings) à la volée.
 async function getHiddenAds() {
   const result = await browser.storage.local.get(STORAGE_KEY);
   const raw = result[STORAGE_KEY] || [];
@@ -14,11 +17,14 @@ async function saveHiddenAds(ads) {
   await browser.storage.local.set({ [STORAGE_KEY]: ads });
 }
 
+// ─── Rendu ───────────────────────────────────────────────────────────────────
+
 async function render() {
   const ads = await getHiddenAds();
   const summary = document.getElementById("summary");
   const content = document.getElementById("content");
 
+  // Compteur
   const plural = ads.length !== 1 ? "s" : "";
   const strong = document.createElement("strong");
   strong.textContent = ads.length;
@@ -39,6 +45,7 @@ async function render() {
   const list = document.createElement("ul");
   list.style.cssText = "list-style:none; padding: 8px 16px; max-height:220px; overflow-y:auto;";
 
+  // Tri par date de masquage décroissante (plus récent en premier)
   const sorted = [...ads].sort((a, b) => {
     const da = a.hiddenDate ? new Date(a.hiddenDate) : 0;
     const db = b.hiddenDate ? new Date(b.hiddenDate) : 0;
@@ -49,11 +56,13 @@ async function render() {
     const li = document.createElement("li");
     li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f0f0f0; font-size:13px; gap:8px;";
 
+    // Tooltip : id + date de masquage
     const dateStr = ad.hiddenDate
       ? new Date(ad.hiddenDate).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })
       : null;
     const tooltip = [`#${ad.id}`, dateStr].filter(Boolean).join(" — ");
 
+    // Lien cliquable si l'URL est connue, sinon texte simple
     let label;
     if (ad.url) {
       label = document.createElement("a");
@@ -88,6 +97,8 @@ async function render() {
   content.appendChild(list);
 }
 
+// ─── Actions ─────────────────────────────────────────────────────────────────
+
 document.getElementById("btn-clear").addEventListener("click", async () => {
   if (confirm("Ré-afficher toutes les annonces masquées ?")) {
     await saveHiddenAds([]);
@@ -95,6 +106,7 @@ document.getElementById("btn-clear").addEventListener("click", async () => {
   }
 });
 
+// Copie la liste complète (JSON) dans le presse-papier
 document.getElementById("btn-export").addEventListener("click", async () => {
   const ads = await getHiddenAds();
   if (ads.length === 0) {
@@ -111,6 +123,7 @@ document.getElementById("btn-export").addEventListener("click", async () => {
   }
 });
 
+// Fusionne le JSON du presse-papier avec la liste existante (sans doublons)
 document.getElementById("btn-import").addEventListener("click", async () => {
   let text;
   try {
@@ -152,5 +165,7 @@ document.getElementById("btn-import").addEventListener("click", async () => {
   btn.textContent = added > 0 ? `+${added} ajouté${added > 1 ? "s" : ""}` : "Déjà présents";
   setTimeout(() => { btn.textContent = "Importer"; }, 2000);
 });
+
+// ─── Init ────────────────────────────────────────────────────────────────────
 
 render();

@@ -64,4 +64,18 @@ class HiddenAdsStorage {
     await HiddenAdsStorage.saveAsync(ads.filter(a => a.id !== entryId));
   }
 
+  /**
+   * Supprime les annonces masquées depuis plus de 180 jours.
+   */
+  static async purgeOldAsync() {
+    const nbDays = (await ApplicationSettings.loadAsync()).autoPurgeMaxDays;
+    const cutoff = Date.now() - nbDays * 24 * 60 * 60 * 1000;
+    const ads = await HiddenAdsStorage.getAsync();
+    const filtered = ads.filter(a => new Date(a.hiddenDate).getTime() >= cutoff);
+    if (filtered.length < ads.length) {
+      await HiddenAdsStorage.saveAsync(filtered);
+      console.log(`[lbc] Purged ${ads.length - filtered.length} old hidden ads`);
+    }
+  }
+
 }

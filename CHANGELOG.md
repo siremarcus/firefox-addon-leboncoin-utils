@@ -1,0 +1,30 @@
+# Changelog
+
+## [Unreleased]
+- Auto-purge old hidden ads at startup (configurable threshold)
+- Settings page in popup to configure auto-purge threshold
+- SVG icons extracted to separate files
+- Popup styles moved to `popup.css`
+- VS Code task to bump patch version
+
+## [1.0.6]
+- Refactoring: common storage classes moved to `data/`
+
+## [1.0.5]
+- Display extension version in popup footer
+- Add link to addon page
+
+## [1.0.4]
+- Mobile tweaks
+
+## [1.0.3]
+- Add item metadata (URL, title, hidden date) to stored entries
+
+## [1.0.2]
+- Add import button (merge from clipboard)
+
+## [1.0.1]
+- Add documentation
+
+## [1.0.0]
+- Initial release: hide unwanted ads on leboncoin

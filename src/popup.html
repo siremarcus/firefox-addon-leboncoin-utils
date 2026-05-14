@@ -4,128 +4,67 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Annonces masquées</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, sans-serif;
-      font-size: 14px;
-      color: #222;
-      background: #fff;
-      min-width: 280px;
-      max-width: 360px;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 16px;
-      background: #f04747;
-      color: #fff;
-    }
-
-    header svg { flex-shrink: 0; }
-
-    header h1 {
-      font-size: 15px;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .summary {
-      padding: 12px 16px;
-      border-bottom: 1px solid #eee;
-      color: #555;
-      font-size: 13px;
-    }
-
-    .summary strong { color: #222; }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-      padding: 10px 16px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 7px 10px;
-      font-size: 13px;
-      border-radius: 5px;
-      cursor: pointer;
-      border: 1px solid;
-      transition: background 0.15s;
-    }
-
-    .btn-danger {
-      color: #dc2626;
-      border-color: #dc2626;
-      background: transparent;
-    }
-    .btn-danger:hover { background: #fef2f2; }
-
-    .btn-primary {
-      color: #0065c9;
-      border-color: #0065c9;
-      background: transparent;
-    }
-    .btn-primary:hover { background: #eff6ff; }
-
-    .empty {
-      padding: 24px 16px;
-      text-align: center;
-      color: #888;
-      font-size: 13px;
-      font-style: italic;
-    }
-
-    footer {
-      padding: 10px 16px;
-      font-size: 11px;
-      color: #aaa;
-      text-align: center;
-      border-top: 1px solid #eee;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
 
   <header>
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <path fill-rule="evenodd"
-        d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414
-           l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943
-           14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781z
-           m4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514
-           a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/>
-      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741
-               L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7
-               9.542 7a9.957 9.957 0 004.954-1.303z"/>
-    </svg>
-    <h1>Leboncoin<br>Masquer des annonces</h1>
+    <div class="header-left">
+      <img src="icons/eye-slash.svg" width="20" height="20" alt="">
+      <h1>Leboncoin<br>Masquer des annonces</h1>
+    </div>
+
+    <!-- Gear button (main page) -->
+    <button class="header-nav" id="btn-go-settings" title="Paramètres">
+      <img src="icons/gear.svg" width="18" height="18" alt="">
+    </button>
+
+    <!-- Back button (settings page) -->
+    <button class="header-nav" id="btn-go-main" title="Retour">
+      <img src="icons/home.svg" width="18" height="18" alt="">
+    </button>
   </header>
 
-  <div class="summary" id="summary">Chargement…</div>
+  <!-- Page principale -->
+  <div id="page-main">
+    <div class="summary" id="summary">Chargement…</div>
 
-  <div class="actions">
-    <button class="btn btn-primary" id="btn-export" title="Copier les IDs dans le presse-papier">
-      Exporter
-    </button>
-    <button class="btn btn-primary" id="btn-import" title="Importer des IDs depuis le presse-papier">
-      Importer
-    </button>
-    <button class="btn btn-danger" id="btn-clear" title="Ré-afficher toutes les annonces masquées">
-      Tout effacer
-    </button>
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-export" title="Copier les IDs dans le presse-papier">
+        Exporter
+      </button>
+      <button class="btn btn-primary" id="btn-import" title="Importer des IDs depuis le presse-papier">
+        Importer
+      </button>
+      <button class="btn btn-danger" id="btn-clear" title="Ré-afficher toutes les annonces masquées">
+        Tout effacer
+      </button>
+    </div>
+
+    <div id="content"></div>
+
+    <footer>Les annonces masquées sont stockées localement. Utilisez l'export / l'import pour les transférer sur un autre appareil. <span id="version"></span></footer>
+
   </div>
 
-  <div id="content"></div>
+  <!-- Page paramètres -->
+  <div id="page-settings" hidden>
+    <div class="settings-section">
+      <label for="input-purge-days">Purge automatique</label>
+      <div class="settings-control">
+        <input type="number" id="input-purge-days" min="1" max="3650" step="1">
+        <span>jours</span>
+      </div>
+      <p class="settings-hint">Les annonces masquées plus vieilles que ce délai sont supprimées au démarrage de l'extension.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-save-settings">Enregistrer</button>
+    </div>
+  </div>
 
-  <footer>Les annonces masquées sont stockées localement. Utilisez l'export / l'import pour les transferer sur un autre appareil. <span id="version"></span></footer>
 
-  <script src="item-entry.js"></script>
+  <script src="data/settings.js"></script>
+  <script src="data/item-entry.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

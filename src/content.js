@@ -102,6 +102,7 @@ function createHideButton(adInfo, adElement) {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log(`[lbc] Hiding ad: ${adInfo.id} — ${adInfo.title}`);
     await HiddenAdsStorage.saveOneAsync(new ItemEntry(adInfo.id, adInfo.url, adInfo.title));
     collapseAd(adElement, adInfo.id);
   });
@@ -132,6 +133,7 @@ function collapseAd(adElement, adId) {
     banner.querySelector(".lbc-show-btn").addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
+      console.log(`[lbc] Restoring ad: ${adId}`);
       await HiddenAdsStorage.removeOneAsync(adId);
       restoreAd(adElement);
     });
@@ -181,6 +183,7 @@ async function processPage() {
   if (/^\/ad\//.test(location.pathname)) return;
   const hiddenAds = new Map((await HiddenAdsStorage.getAsync()).map(a => [a.id, a]));
   const ads = findAdElements();
+  console.log(`[lbc] processPage: ${ads.length} new ads, ${hiddenAds.size} hidden`);
   for (const ad of ads) {
     await processAdElement(ad, hiddenAds);
   }
@@ -202,4 +205,4 @@ observer.observe(document.body, {
 
 // ─── Initialisation ─────────────────────────────────────────────────────────
 
-processPage();
+HiddenAdsStorage.purgeOldAsync().then(processPage);

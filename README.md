@@ -19,12 +19,15 @@ Extension Firefox (Android & Desktop) pour masquer les annonces indésirables su
 
 ```
 src/
-├── manifest.json   # Manifest V2 (Firefox Android compatible)
-├── content.js      # Injection dans les pages leboncoin
-├── content.css     # Styles du bouton et des annonces masquées
-├── popup.html      # Interface de gestion
-├── popup.js        # Logique du popup
-└── icons/          # Icônes SVG de l'extension
+├── manifest.json       # Manifest V2 (Firefox Android compatible)
+├── content.js          # Injection dans les pages leboncoin
+├── content.css         # Styles du bouton et des annonces masquées
+├── popup.html          # Interface de gestion
+├── popup.js            # Logique du popup
+├── data/
+│   ├── item-entry.js   # Modèle d'une annonce
+│   └── settings.js     # Gestion des paramètres
+└── icons/              # Icônes SVG de l'extension
 ```
 
 ## Installation

@@ -1,4 +1,3 @@
-document.getElementById("version").textContent = `v${browser.runtime.getManifest().version}`;
 
 // ─── Rendu ───────────────────────────────────────────────────────────────────
 
@@ -6,7 +5,7 @@ document.getElementById("version").textContent = `v${browser.runtime.getManifest
  * Reconstruit entièrement l'interface du popup : compteur, liste triée par date
  * de masquage décroissante, et message vide si aucune annonce.
  */
-async function render() {
+async function renderMain() {
   const ads = await HiddenAdsStorage.getAsync();
   const summary = document.getElementById("summary");
   const content = document.getElementById("content");
@@ -71,7 +70,7 @@ async function render() {
     btnRestore.style.cssText = "font-size:11px; padding:3px 8px; border:1px solid #0065c9; color:#0065c9; background:transparent; border-radius:4px; cursor:pointer; white-space:nowrap;";
     btnRestore.addEventListener("click", async () => {
       await HiddenAdsStorage.removeOneAsync(ad.id);
-      render();
+      renderMain();
     });
 
     li.appendChild(label);
@@ -81,6 +80,8 @@ async function render() {
 
   content.innerHTML = "";
   content.appendChild(list);
+
+  document.getElementById("version").textContent = `v${browser.runtime.getManifest().version}`;
 }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -88,7 +89,7 @@ async function render() {
 document.getElementById("btn-clear").addEventListener("click", async () => {
   if (confirm("Ré-afficher toutes les annonces masquées ?")) {
     await HiddenAdsStorage.saveAsync([]);
-    render();
+    renderMain();
   }
 });
 
@@ -144,7 +145,7 @@ document.getElementById("btn-import").addEventListener("click", async () => {
   const toAdd = incoming.filter(a => !existingIds.has(a.id));
 
   await HiddenAdsStorage.saveAsync([...current, ...toAdd]);
-  render();
+  renderMain();
 
   const btn = document.getElementById("btn-import");
   const added = toAdd.length;
@@ -152,6 +153,39 @@ document.getElementById("btn-import").addEventListener("click", async () => {
   setTimeout(() => { btn.textContent = "Importer"; }, 2000);
 });
 
+// ─── Navigation ──────────────────────────────────────────────────────────────
+
+function showPage(name) {
+  const isMain = name === "main";
+  document.getElementById("page-main").hidden = !isMain;
+  document.getElementById("page-settings").hidden = isMain;
+  document.getElementById("btn-go-main").hidden = isMain;
+  document.getElementById("btn-go-settings").hidden = !isMain;
+  if (!isMain) renderSettings();
+}
+
+document.getElementById("btn-go-settings").addEventListener("click", () => showPage("settings"));
+document.getElementById("btn-go-main").addEventListener("click", () => showPage("main"));
+
+// ─── Settings page ───────────────────────────────────────────────────────────
+
+async function renderSettings() {
+  const settings = await ApplicationSettings.loadAsync();
+  document.getElementById("input-purge-days").value = settings.autoPurgeMaxDays;
+}
+
+document.getElementById("btn-save-settings").addEventListener("click", async () => {
+  const days = parseInt(document.getElementById("input-purge-days").value, 10);
+  if (isNaN(days) || days < 1) return;
+  const settings = new ApplicationSettingsDefinition();
+  settings.autoPurgeMaxDays = days;
+  await ApplicationSettings.saveAsync(settings);
+  const btn = document.getElementById("btn-save-settings");
+  btn.textContent = "Enregistré !";
+  setTimeout(() => { btn.textContent = "Enregistrer"; }, 2000);
+});
+
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-render();
+showPage("main");
+renderMain();

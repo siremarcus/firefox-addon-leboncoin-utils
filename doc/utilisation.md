@@ -14,6 +14,8 @@ L'annonce est remplacée par une fine barre grise affichant **"Annonce masquée"
 
 > Le masquage fonctionne aussi avec le **scroll infini** : les annonces chargées dynamiquement reçoivent automatiquement le bouton masquer.
 
+![Exemple de l'extension en action](./sample-item-list.png)
+
 ---
 
 ## Ré-afficher une annonce masquée
@@ -31,6 +33,9 @@ Cliquez sur le bouton **"Ré-afficher"** visible dans la barre grise de l'annonc
 ---
 
 ## Gérer les annonces masquées (popup)
+
+![Exemple de l'extension en action](./sample-extension-options.png)
+
 
 Cliquez sur l'icône de l'extension pour ouvrir le popup. Il affiche :
 

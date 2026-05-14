@@ -2,6 +2,9 @@
 
 Extension Firefox (Android & Desktop) pour masquer les annonces indésirables sur [leboncoin.fr](https://www.leboncoin.fr) et faciliter les recherches récurrentes.
 
+![Exemple de l'extension en action](./doc/sample-item-list.png)
+![Exemple de l'extension en action 2](./doc/sample-extension-options.png)
+
 ## Fonctionnalités
 
 - Bouton masquer sur chaque annonce (œil barré)

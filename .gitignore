@@ -11,3 +11,6 @@ Thumbs.db
 .idea/
 *.swp
 *~
+
+# Node
+node_modules

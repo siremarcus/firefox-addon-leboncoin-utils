@@ -14,10 +14,20 @@ async function render() {
   const summary = document.getElementById("summary");
   const content = document.getElementById("content");
 
-  summary.innerHTML = `<strong>${ids.length}</strong> annonce${ids.length !== 1 ? "s" : ""} masquée${ids.length !== 1 ? "s" : ""}`;
+  const plural = ids.length !== 1 ? "s" : "";
+  const strong = document.createElement("strong");
+  strong.textContent = ids.length;
+  summary.replaceChildren(strong, ` annonce${plural} masquée${plural}`);
 
   if (ids.length === 0) {
-    content.innerHTML = `<p class="empty">Aucune annonce masquée.<br>Naviguez sur leboncoin et utilisez<br>le bouton 👁 pour masquer une annonce.</p>`;
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.append(
+      "Aucune annonce masquée.", document.createElement("br"),
+      "Naviguez sur leboncoin et utilisez", document.createElement("br"),
+      "le bouton 👁 pour masquer une annonce."
+    );
+    content.replaceChildren(p);
     return;
   }
 

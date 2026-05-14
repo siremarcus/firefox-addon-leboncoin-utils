@@ -13,6 +13,7 @@ Extension Firefox (Android & Desktop) pour masquer les annonces indésirables su
 ## Structure
 
 ```
+src/
 ├── manifest.json   # Manifest V2 (Firefox Android compatible)
 ├── content.js      # Injection dans les pages leboncoin
 ├── content.css     # Styles du bouton et des annonces masquées
@@ -46,7 +47,7 @@ Firefox Nightly et Beta permettent le chargement d'extensions via `about:debuggi
 ### Packaging (`.zip` / `.xpi`)
 
 ```bash
-zip -r leboncoin-hide-ads.zip manifest.json content.js content.css popup.html popup.js icons/
+npx web-ext build --source-dir src/ --artifacts-dir releases/ --overwrite-dest
 ```
 
 ## Notes

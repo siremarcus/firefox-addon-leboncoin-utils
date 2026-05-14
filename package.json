@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "web-ext run --source-dir . --firefox /run/host/usr/bin/firefox"
+    "start": "web-ext run --source-dir src/ --firefox /run/host/usr/bin/firefox"
   },
   "dependencies": {
     "web-ext": "^10.1.0"

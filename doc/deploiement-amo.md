@@ -20,7 +20,7 @@ Ce guide décrit comment signer et publier l'extension sur [addons.mozilla.org](
 `web-ext` intègre un linter qui détecte les erreurs courantes :
 
 ```bash
-npx web-ext lint --source-dir .
+npx web-ext lint --source-dir src/
 ```
 
 Corrigez tous les avertissements bloquants avant de continuer.
@@ -30,7 +30,7 @@ Corrigez tous les avertissements bloquants avant de continuer.
 ## 2. Créer le package `.zip`
 
 ```bash
-npx web-ext build --source-dir . --artifacts-dir dist/
+npx web-ext build --source-dir src/ --artifacts-dir releases/
 ```
 
 Le fichier `.zip` est généré dans `dist/`. C'est ce fichier qui sera soumis à AMO.
@@ -58,8 +58,8 @@ Récupérez d'abord vos clés API sur AMO ([Gestion des clés API](https://addon
 
 ```bash
 npx web-ext sign \
-  --source-dir . \
-  --artifacts-dir dist/ \
+  --source-dir src/ \
+  --artifacts-dir releases/ \
   --api-key <JWT_ISSUER> \
   --api-secret <JWT_SECRET>
 ```
@@ -88,7 +88,7 @@ Une fois l'extension soumise (même non listée), créez une collection AMO pers
 1. Incrémentez le champ `version` dans [manifest.json](../manifest.json).
 2. Rebuilder le package :
    ```bash
-   npx web-ext build --source-dir . --artifacts-dir dist/
+   npx web-ext build --source-dir src/ --artifacts-dir releases/
    ```
 3. Soumettre la nouvelle version via l'interface AMO ou via `web-ext sign` (Option B ci-dessus).
 

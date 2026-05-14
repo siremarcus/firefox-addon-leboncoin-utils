@@ -13,24 +13,24 @@
   "content_scripts": [
     {
       "matches": ["*://www.leboncoin.fr/*"],
-      "js": ["src/content.js"],
-      "css": ["src/content.css"],
+      "js": ["content.js"],
+      "css": ["content.css"],
       "run_at": "document_idle"
     }
   ],
 
   "browser_action": {
-    "default_popup": "src/popup.html",
+    "default_popup": "popup.html",
     "default_title": "Leboncoin - Masquer des annonces",
     "default_icon": {
-      "48": "src/icons/icon-48.svg",
-      "96": "src/icons/icon-96.svg"
+      "48": "icons/icon-48.svg",
+      "96": "icons/icon-96.svg"
     }
   },
 
   "icons": {
-    "48": "src/icons/icon-48.svg",
-    "96": "src/icons/icon-96.svg"
+    "48": "icons/icon-48.svg",
+    "96": "icons/icon-96.svg"
   },
 
   "browser_specific_settings": {

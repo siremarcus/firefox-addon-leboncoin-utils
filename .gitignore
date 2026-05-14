@@ -1,0 +1,13 @@
+# Build / packaging
+*.zip
+*.xpi
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~

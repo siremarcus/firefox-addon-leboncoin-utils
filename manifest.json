@@ -1,0 +1,45 @@
+{
+  "manifest_version": 2,
+  "name": "Leboncoin - Masquer des annonces",
+  "version": "1.0.0",
+  "description": "Masquer les annonces indésirables sur leboncoin pour faciliter vos recherches récurrentes.",
+  "author": "remy",
+
+  "permissions": [
+    "storage",
+    "*://www.leboncoin.fr/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["*://www.leboncoin.fr/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title": "Leboncoin - Masquer des annonces",
+    "default_icon": {
+      "48": "icons/icon-48.svg",
+      "96": "icons/icon-96.svg"
+    }
+  },
+
+  "icons": {
+    "48": "icons/icon-48.svg",
+    "96": "icons/icon-96.svg"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "leboncoin-hide-ads@remy",
+      "strict_min_version": "113.0"
+    },
+    "gecko_android": {
+      "strict_min_version": "113.0"
+    }
+  }
+}

@@ -33,7 +33,7 @@
 }
 
 /* Sur mobile / tactile : toujours visible */
-@media (hover: none) {
+@media (hover: none), (pointer: coarse) {
   .lbc-hide-btn {
     opacity: 0.75;
   }

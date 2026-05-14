@@ -14,21 +14,31 @@ Extension Firefox (Android & Desktop) pour masquer les annonces indésirables su
 - Persistance locale : les annonces restent masquées entre les sessions
 - Compatible avec le scroll infini (MutationObserver)
 - Popup de gestion : liste, ré-affichage individuel ou global, export des IDs
+- Purge automatique des annonces masquées trop anciennes (seuil configurable dans les paramètres)
 
 ## Structure
 
 ```
 src/
-├── manifest.json       # Manifest V2 (Firefox Android compatible)
-├── content.js          # Injection dans les pages leboncoin
-├── content.css         # Styles du bouton et des annonces masquées
-├── popup.html          # Interface de gestion
-├── popup.js            # Logique du popup
+├── manifest.json           # Manifest V2 (Firefox Android compatible)
+├── globals.d.ts            # Déclaration du global browser pour TypeScript
+├── content/
+│   ├── content.ts          # Injection dans les pages leboncoin
+│   └── content.css         # Styles du bouton et des annonces masquées
+├── popup/
+│   ├── popup.html          # Interface de gestion
+│   ├── popup.ts            # Logique du popup
+│   └── popup.css           # Styles du popup
 ├── data/
-│   ├── item-entry.js   # Modèle d'une annonce
-│   └── settings.js     # Gestion des paramètres
-└── icons/              # Icônes SVG de l'extension
+│   ├── annonce-entry.ts          # Modèle d'une annonce masquée
+│   ├── annonce-entry-storage.ts  # Persistance des annonces masquées
+│   ├── browser-storage.ts        # Abstraction du storage navigateur
+│   ├── settings.ts               # Modèle des paramètres
+│   └── settings-storage.ts       # Persistance des paramètres
+└── icons/                  # Icônes SVG de l'extension
 ```
+
+Les sources TypeScript sont compilées vers `dist/` via esbuild (bundling) + tsc (type-check). Le dossier `dist/` n'est pas versionné.
 
 ## Installation
 
@@ -55,9 +65,9 @@ Firefox Nightly et Beta permettent le chargement d'extensions via `about:debuggi
 ### Packaging (`.zip` / `.xpi`)
 
 ```bash
-npx web-ext build --source-dir src/ --artifacts-dir releases/ --overwrite-dest
+npm run package
 ```
 
 ## Notes
 
-Les sélecteurs CSS ciblant les annonces (`article`, `li[data-qa-id]`, etc.) peuvent évoluer avec les mises à jour du site. Si le bouton masquer n'apparaît plus, inspecter la structure HTML et mettre à jour `findAdElements()` dans [content.js](content.js).
+Les sélecteurs CSS ciblant les annonces (`article`, `li[data-qa-id]`, etc.) peuvent évoluer avec les mises à jour du site. Si le bouton masquer n'apparaît plus, inspecter la structure HTML et mettre à jour `findAnnonceElements()` dans [src/content/lbc-dom-parser.ts](src/content/lbc-dom-parser.ts).

@@ -1,0 +1,1 @@
+in this directory, you can find samples of leboncoin DOM elements you can base your selectors on

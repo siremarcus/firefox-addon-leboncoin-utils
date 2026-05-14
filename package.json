@@ -1,8 +1,23 @@
 {
   "scripts": {
-    "start": "web-ext run --source-dir src/ --firefox /run/host/usr/bin/firefox"
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
+    "build": "npm run clean && tsc --noEmit && esbuild src/popup/popup.ts src/content/content.ts --bundle --outdir=dist --outbase=src --format=iife && node scripts/copy-static.mjs",
+    "dev": "concurrently \"tsc --noEmit --watch\" \"esbuild src/popup/popup.ts src/content/content.ts --bundle --outdir=dist --outbase=src --format=iife --watch\" \"web-ext run --source-dir dist/ --start-url https://www.leboncoin.fr/\"",
+    "start": "npm run build && web-ext run --source-dir dist/ --start-url https://www.leboncoin.fr/",
+    "package": "npm run build && web-ext build --source-dir dist/ --artifacts-dir releases/ --overwrite-dest",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "web-ext": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^28.0.3",
+    "@types/webextension-polyfill": "^0.12.5",
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.28.0",
+    "jsdom": "^29.1.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   }
 }

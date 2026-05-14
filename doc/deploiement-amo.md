@@ -20,7 +20,7 @@ Ce guide décrit comment signer et publier l'extension sur [addons.mozilla.org](
 `web-ext` intègre un linter qui détecte les erreurs courantes :
 
 ```bash
-npx web-ext lint --source-dir src/
+npm run build && npx web-ext lint --source-dir dist/
 ```
 
 Corrigez tous les avertissements bloquants avant de continuer.
@@ -32,12 +32,12 @@ Corrigez tous les avertissements bloquants avant de continuer.
 Incrémentez la version dans `manifest.json` (ex. de `1.0.0` à `1.0.1`), puis générez le package :
 
 ```bash
-npx web-ext build --source-dir src/ --artifacts-dir releases/
+npm run package
 ```
 
-Le fichier `.zip` est généré dans `dist/`. C'est ce fichier qui sera soumis à AMO.
+Le fichier `.zip` est généré dans `releases/`. C'est ce fichier qui sera soumis à AMO.
 
-> `web-ext build` exclut automatiquement `.git`, `node_modules` et les fichiers listés dans `.gitignore`.
+> `npm run package` compile les sources TypeScript vers `dist/`, puis emballe `dist/` avec `web-ext build`.
 
 ---
 
@@ -87,10 +87,10 @@ Une fois l'extension soumise (même non listée), créez une collection AMO pers
 
 ## 5. Publier une mise à jour
 
-1. Incrémentez le champ `version` dans [manifest.json](../manifest.json).
+1. Incrémentez le champ `version` dans [manifest.json](../src/manifest.json).
 2. Rebuilder le package :
    ```bash
-   npx web-ext build --source-dir src/ --artifacts-dir releases/
+   npm run package
    ```
 3. Soumettre la nouvelle version via l'interface AMO ou via `web-ext sign` (Option B ci-dessus).
 

@@ -46,6 +46,7 @@ Cliquez sur l'icône de l'extension pour ouvrir le popup. Il affiche :
 | Bouton **Exporter** | Copie tous les IDs dans le presse-papier (un par ligne) |
 | Bouton **Importer** | Fusionne les IDs du presse-papier avec la liste existante |
 | Bouton **Tout effacer** | Ré-affiche toutes les annonces masquées en une seule action |
+| Onglet **Paramètres** | Configure le seuil de purge automatique des anciennes annonces |
 
 ### Exporter la liste
 
@@ -60,6 +61,10 @@ Le bouton affiche le nombre d'entrées ajoutées (`+N ajouté(s)`) ou **"Déjà 
 ### Tout effacer
 
 Le bouton **"Tout effacer"** demande une confirmation, puis supprime toutes les annonces masquées. Toutes les annonces redeviennent visibles sur le site.
+
+### Paramètres — purge automatique
+
+L'onglet **Paramètres** du popup permet de configurer le nombre de jours après lequel une annonce masquée est automatiquement supprimée du stockage au démarrage de l'extension. La valeur par défaut est **180 jours**. Mettre la valeur à **0** désactive la purge automatique.
 
 ---
 

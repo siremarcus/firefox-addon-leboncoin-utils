@@ -1,5 +1,5 @@
 /* ── Annonce en cours de traitement ── */
-.lbc-ad-processed {
+.lbc-annonce-processed {
   position: relative;
 }
 
@@ -27,8 +27,8 @@
 }
 
 /* Affichage du bouton au survol sur desktop */
-.lbc-ad-processed:hover .lbc-hide-btn,
-.lbc-ad-processed:focus-within .lbc-hide-btn {
+.lbc-annonce-processed:hover .lbc-hide-btn,
+.lbc-annonce-processed:focus-within .lbc-hide-btn {
   opacity: 1;
 }
 
@@ -43,14 +43,14 @@
   background: rgba(220, 38, 38, 0.85);
 }
 
-.lbc-hide-btn svg {
+.lbc-hide-btn img {
   width: 18px;
   height: 18px;
   pointer-events: none;
 }
 
 /* ── Annonce masquée ── */
-.lbc-ad-hidden {
+.lbc-annonce-hidden {
   overflow: hidden !important;
   max-height: 40px !important;
   min-height: 40px !important;
@@ -58,7 +58,7 @@
   transition: max-height 0.2s ease, opacity 0.2s ease;
 }
 
-.lbc-ad-hidden > *:not(.lbc-hidden-banner) {
+.lbc-annonce-hidden > *:not(.lbc-hidden-banner) {
   display: none !important;
 }
 

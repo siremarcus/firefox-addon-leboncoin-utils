@@ -1,5 +1,7 @@
 # Leboncoin - Masquer des annonces
 
+[![Firefox Add-on](https://img.shields.io/badge/Firefox-Add--on-FF7139?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/fr/firefox/addon/leboncoin-masquer-des-annonces/)
+
 Extension Firefox (Android & Desktop) pour masquer les annonces indésirables sur [leboncoin.fr](https://www.leboncoin.fr) et faciliter les recherches récurrentes.
 
 ![Exemple de l'extension en action](./doc/sample-item-list.png)

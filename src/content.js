@@ -4,45 +4,18 @@
  * et cache les annonces déjà masquées au chargement.
  */
 
-const STORAGE_KEY = "lbc_hidden_ads";
 const ATTR_AD_ID = "data-lbc-ad-id";
 const ATTR_PROCESSED = "data-lbc-processed";
 
 
-// ─── Utilitaires storage ────────────────────────────────────────────────────
-
-async function getHiddenAds() {
-  const result = await browser.storage.local.get(STORAGE_KEY);
-  const raw = result[STORAGE_KEY] || [];
-  const map = new Map();
-  for (const entry of raw) {
-    if (typeof entry === "string") {
-      map.set(entry, new ItemEntry(entry));
-    } else {
-      map.set(entry.id, new ItemEntry(entry.id, entry.url, entry.title, entry.hiddenDate));
-    }
-  }
-  return map;
-}
-
-async function saveHiddenAds(adsMap) {
-  await browser.storage.local.set({ [STORAGE_KEY]: [...adsMap.values()] });
-}
-
-async function hideAd(adId, adUrl, adTitle) {
-  const ads = await getHiddenAds();
-  ads.set(adId, new ItemEntry(adId, adUrl, adTitle));
-  await saveHiddenAds(ads);
-}
-
-async function showAd(adId) {
-  const ads = await getHiddenAds();
-  ads.delete(adId);
-  await saveHiddenAds(ads);
-}
-
 // ─── Extraction des infos d'une annonce ────────────────────────────────────
 
+/**
+ * Extrait l'identifiant, l'URL et le titre d'un élément annonce du DOM.
+ * Tente plusieurs stratégies dans l'ordre pour chaque champ.
+ * @param {Element} adElement
+ * @returns {ItemEntry} Objet contenant id, url, title et hiddenDate (date actuelle)
+ */
 function extractAdInfo(adElement) {
   let id = null;
   let url = null;
@@ -82,11 +55,15 @@ function extractAdInfo(adElement) {
     }
   }
 
-  return { id, url, title };
+  return new ItemEntry(id, url, title);
 }
 
 // ─── Sélecteurs d'annonces ─────────────────────────────────────────────────
 
+/**
+ * Retourne les éléments du DOM représentant des annonces non encore traitées.
+ * @returns {Element[]}
+ */
 function findAdElements() {
   const candidates = document.querySelectorAll(
     `article:not([${ATTR_PROCESSED}]),
@@ -99,6 +76,12 @@ function findAdElements() {
 
 // ─── Bouton "Masquer" ───────────────────────────────────────────────────────
 
+/**
+ * Crée le bouton œil barré permettant de masquer une annonce.
+ * @param {ItemEntry} adInfo
+ * @param {Element} adElement
+ * @returns {HTMLButtonElement}
+ */
 function createHideButton(adInfo, adElement) {
   const btn = document.createElement("button");
   btn.className = "lbc-hide-btn";
@@ -119,7 +102,7 @@ function createHideButton(adInfo, adElement) {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    await hideAd(adInfo.id, adInfo.url, adInfo.title);
+    await HiddenAdsStorage.saveOneAsync(new ItemEntry(adInfo.id, adInfo.url, adInfo.title));
     collapseAd(adElement, adInfo.id);
   });
 
@@ -128,6 +111,12 @@ function createHideButton(adInfo, adElement) {
 
 // ─── Affichage masqué / réduit ──────────────────────────────────────────────
 
+/**
+ * Réduit visuellement une annonce à une fine bannière "Annonce masquée"
+ * avec un bouton pour la ré-afficher. Idempotent : sans effet si la bannière existe déjà.
+ * @param {Element} adElement
+ * @param {string} adId
+ */
 function collapseAd(adElement, adId) {
   adElement.classList.add("lbc-ad-hidden");
   adElement.setAttribute(ATTR_AD_ID, adId);
@@ -143,19 +132,29 @@ function collapseAd(adElement, adId) {
     banner.querySelector(".lbc-show-btn").addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await showAd(adId);
+      await HiddenAdsStorage.removeOneAsync(adId);
       restoreAd(adElement);
     });
     adElement.appendChild(banner);
   }
 }
 
+/**
+ * Restaure l'affichage normal d'une annonce préalablement masquée.
+ * @param {Element} adElement
+ */
 function restoreAd(adElement) {
   adElement.classList.remove("lbc-ad-hidden");
 }
 
 // ─── Traitement d'un élément annonce ───────────────────────────────────────
 
+/**
+ * Traite un élément annonce : le marque comme traité, puis soit le masque
+ * s'il est dans la liste, soit lui ajoute le bouton masquer.
+ * @param {Element} adElement
+ * @param {Map<string, ItemEntry>} hiddenAds
+ */
 async function processAdElement(adElement, hiddenAds) {
   adElement.setAttribute(ATTR_PROCESSED, "1");
 
@@ -174,9 +173,13 @@ async function processAdElement(adElement, hiddenAds) {
 
 // ─── Traitement de la page ──────────────────────────────────────────────────
 
+/**
+ * Parcourt les annonces non traitées de la page et les traite.
+ * Ne fait rien sur les pages de détail d'annonce (/ad/…).
+ */
 async function processPage() {
   if (/^\/ad\//.test(location.pathname)) return;
-  const hiddenAds = await getHiddenAds();
+  const hiddenAds = new Map((await HiddenAdsStorage.getAsync()).map(a => [a.id, a]));
   const ads = findAdElements();
   for (const ad of ads) {
     await processAdElement(ad, hiddenAds);

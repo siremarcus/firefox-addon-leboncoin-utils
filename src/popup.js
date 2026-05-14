@@ -1,26 +1,13 @@
-// ─── Storage ────────────────────────────────────────────────────────────────
-
-const STORAGE_KEY = "lbc_hidden_ads";
-
 document.getElementById("version").textContent = `v${browser.runtime.getManifest().version}`;
-
-// Retourne le tableau des annonces masquées, en migrant les anciennes entrées (strings) à la volée.
-async function getHiddenAds() {
-  const result = await browser.storage.local.get(STORAGE_KEY);
-  const raw = result[STORAGE_KEY] || [];
-  return raw.map(entry =>
-    typeof entry === "string" ? { id: entry, url: null, title: null } : entry
-  );
-}
-
-async function saveHiddenAds(ads) {
-  await browser.storage.local.set({ [STORAGE_KEY]: ads });
-}
 
 // ─── Rendu ───────────────────────────────────────────────────────────────────
 
+/**
+ * Reconstruit entièrement l'interface du popup : compteur, liste triée par date
+ * de masquage décroissante, et message vide si aucune annonce.
+ */
 async function render() {
-  const ads = await getHiddenAds();
+  const ads = await HiddenAdsStorage.getAsync();
   const summary = document.getElementById("summary");
   const content = document.getElementById("content");
 
@@ -83,8 +70,7 @@ async function render() {
     btnRestore.textContent = "Ré-afficher";
     btnRestore.style.cssText = "font-size:11px; padding:3px 8px; border:1px solid #0065c9; color:#0065c9; background:transparent; border-radius:4px; cursor:pointer; white-space:nowrap;";
     btnRestore.addEventListener("click", async () => {
-      const current = await getHiddenAds();
-      await saveHiddenAds(current.filter(a => a.id !== ad.id));
+      await HiddenAdsStorage.removeOneAsync(ad.id);
       render();
     });
 
@@ -101,14 +87,14 @@ async function render() {
 
 document.getElementById("btn-clear").addEventListener("click", async () => {
   if (confirm("Ré-afficher toutes les annonces masquées ?")) {
-    await saveHiddenAds([]);
+    await HiddenAdsStorage.saveAsync([]);
     render();
   }
 });
 
 // Copie la liste complète (JSON) dans le presse-papier
 document.getElementById("btn-export").addEventListener("click", async () => {
-  const ads = await getHiddenAds();
+  const ads = await HiddenAdsStorage.getAsync();
   if (ads.length === 0) {
     alert("Aucune annonce masquée à exporter.");
     return;
@@ -153,11 +139,11 @@ document.getElementById("btn-import").addEventListener("click", async () => {
     return;
   }
 
-  const current = await getHiddenAds();
+  const current = await HiddenAdsStorage.getAsync();
   const existingIds = new Set(current.map(a => a.id));
   const toAdd = incoming.filter(a => !existingIds.has(a.id));
 
-  await saveHiddenAds([...current, ...toAdd]);
+  await HiddenAdsStorage.saveAsync([...current, ...toAdd]);
   render();
 
   const btn = document.getElementById("btn-import");

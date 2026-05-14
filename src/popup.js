@@ -1,5 +1,7 @@
 const STORAGE_KEY = "lbc_hidden_ads";
 
+document.getElementById("version").textContent = `v${browser.runtime.getManifest().version}`;
+
 async function getHiddenAds() {
   const result = await browser.storage.local.get(STORAGE_KEY);
   const raw = result[STORAGE_KEY] || [];

@@ -29,6 +29,8 @@ Corrigez tous les avertissements bloquants avant de continuer.
 
 ## 2. Créer le package `.zip`
 
+Incrémentez la version dans `manifest.json` (ex. de `1.0.0` à `1.0.1`), puis générez le package :
+
 ```bash
 npx web-ext build --source-dir src/ --artifacts-dir releases/
 ```
@@ -93,6 +95,31 @@ Une fois l'extension soumise (même non listée), créez une collection AMO pers
 3. Soumettre la nouvelle version via l'interface AMO ou via `web-ext sign` (Option B ci-dessus).
 
 > AMO conserve l'historique de toutes les versions. Les utilisateurs ayant installé l'extension reçoivent la mise à jour automatiquement.
+
+---
+
+## Checklist Android (AMO)
+
+Avant de soumettre l'extension, vérifier les points suivants pour Android :
+
+- [ ] **APIs JS compatibles** — Vérifier avec [Browser Support for JavaScript APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Browser_support_for_JavaScript_APIs) que toutes les APIs utilisées sont disponibles sur Firefox Android.
+  - `browser.storage.local` ✅ supporté
+  - `MutationObserver` ✅ supporté
+  - `navigator.clipboard.writeText` ⚠️ peut échouer sur Android (fallback `alert` en place)
+
+- [ ] **Balise viewport** — Les pages HTML doivent avoir une balise `<meta name="viewport">` pour un affichage correct sur mobile.
+  - `popup.html` ✅ balise présente
+
+- [ ] **Design responsive** — Utiliser des patterns responsive adaptés aux utilisateurs Android.
+  - Popup : largeur bornée (`min-width: 280px`, `max-width: 360px`) ✅
+  - Bouton masquer : `@media (hover: none)` le rend toujours visible sur écrans tactiles ✅
+
+- [ ] **Tester les chemins critiques** sur un appareil Android réel ou un émulateur Android Studio.
+
+- [ ] **Fonctionnement hors connexion** — L'extension ne doit pas être bloquée sans réseau.
+  - Seul `browser.storage.local` est utilisé — aucun appel réseau depuis l'extension ✅
+
+- [ ] **Tester sur différentes tailles d'écrans** — Android Studio fournit des appareils virtuels variés.
 
 ---
 

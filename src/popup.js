@@ -1,25 +1,28 @@
 const STORAGE_KEY = "lbc_hidden_ads";
 
-async function getHiddenIds() {
+async function getHiddenAds() {
   const result = await browser.storage.local.get(STORAGE_KEY);
-  return result[STORAGE_KEY] || [];
+  const raw = result[STORAGE_KEY] || [];
+  return raw.map(entry =>
+    typeof entry === "string" ? { id: entry, url: null, title: null } : entry
+  );
 }
 
-async function saveHiddenIds(ids) {
-  await browser.storage.local.set({ [STORAGE_KEY]: ids });
+async function saveHiddenAds(ads) {
+  await browser.storage.local.set({ [STORAGE_KEY]: ads });
 }
 
 async function render() {
-  const ids = await getHiddenIds();
+  const ads = await getHiddenAds();
   const summary = document.getElementById("summary");
   const content = document.getElementById("content");
 
-  const plural = ids.length !== 1 ? "s" : "";
+  const plural = ads.length !== 1 ? "s" : "";
   const strong = document.createElement("strong");
-  strong.textContent = ids.length;
+  strong.textContent = ads.length;
   summary.replaceChildren(strong, ` annonce${plural} masquée${plural}`);
 
-  if (ids.length === 0) {
+  if (ads.length === 0) {
     const p = document.createElement("p");
     p.className = "empty";
     p.append(
@@ -34,29 +37,47 @@ async function render() {
   const list = document.createElement("ul");
   list.style.cssText = "list-style:none; padding: 8px 16px; max-height:220px; overflow-y:auto;";
 
-  for (const id of ids) {
+  const sorted = [...ads].sort((a, b) => {
+    const da = a.hiddenDate ? new Date(a.hiddenDate) : 0;
+    const db = b.hiddenDate ? new Date(b.hiddenDate) : 0;
+    return db - da;
+  });
+
+  for (const ad of sorted) {
     const li = document.createElement("li");
     li.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f0f0f0; font-size:13px; gap:8px;";
 
-    const link = document.createElement("a");
-    link.href = `https://www.leboncoin.fr/annonces/offerType_${id}.htm`;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = `#${id}`;
-    link.style.cssText = "color:#0065c9; text-decoration:none; font-family:monospace;";
-    link.title = "Ouvrir l'annonce (si elle existe encore)";
+    const dateStr = ad.hiddenDate
+      ? new Date(ad.hiddenDate).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" })
+      : null;
+    const tooltip = [`#${ad.id}`, dateStr].filter(Boolean).join(" — ");
+
+    let label;
+    if (ad.url) {
+      label = document.createElement("a");
+      label.href = ad.url;
+      label.target = "_blank";
+      label.rel = "noopener noreferrer";
+      label.title = `${tooltip} — Ouvrir l'annonce`;
+      label.style.cssText = "color:#0065c9; text-decoration:none; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;";
+    } else {
+      label = document.createElement("span");
+      label.title = tooltip;
+      label.style.cssText = "color:#555; font-family:monospace; min-width:0; flex:1;";
+    }
+    const displayTitle = ad.title ? ad.title.slice(0, 60) : `#${ad.id}`;
+    label.textContent = displayTitle;
 
     const btnRestore = document.createElement("button");
     btnRestore.textContent = "Ré-afficher";
     btnRestore.style.cssText = "font-size:11px; padding:3px 8px; border:1px solid #0065c9; color:#0065c9; background:transparent; border-radius:4px; cursor:pointer; white-space:nowrap;";
     btnRestore.addEventListener("click", async () => {
-      const current = await getHiddenIds();
-      const updated = current.filter(i => i !== id);
-      await saveHiddenIds(updated);
+      const current = await getHiddenAds();
+      await saveHiddenAds(current.filter(a => a.id !== ad.id));
       render();
     });
 
-    li.appendChild(link);
+    li.appendChild(label);
     li.appendChild(btnRestore);
     list.appendChild(li);
   }
@@ -67,24 +88,24 @@ async function render() {
 
 document.getElementById("btn-clear").addEventListener("click", async () => {
   if (confirm("Ré-afficher toutes les annonces masquées ?")) {
-    await saveHiddenIds([]);
+    await saveHiddenAds([]);
     render();
   }
 });
 
 document.getElementById("btn-export").addEventListener("click", async () => {
-  const ids = await getHiddenIds();
-  if (ids.length === 0) {
+  const ads = await getHiddenAds();
+  if (ads.length === 0) {
     alert("Aucune annonce masquée à exporter.");
     return;
   }
   try {
-    await navigator.clipboard.writeText(ids.join("\n"));
+    await navigator.clipboard.writeText(JSON.stringify(ads, null, 2));
     const btn = document.getElementById("btn-export");
     btn.textContent = "Copié !";
     setTimeout(() => { btn.textContent = "Exporter"; }, 2000);
   } catch {
-    alert(ids.join("\n"));
+    alert(JSON.stringify(ads));
   }
 });
 
@@ -97,23 +118,35 @@ document.getElementById("btn-import").addEventListener("click", async () => {
     return;
   }
 
-  const incoming = text
-    .split(/[\n,]+/)
-    .map(s => s.trim())
-    .filter(s => /^\d+$/.test(s));
-
-  if (incoming.length === 0) {
-    alert("Aucun ID valide trouvé dans le presse-papier.");
+  let incoming;
+  try {
+    const parsed = JSON.parse(text);
+    incoming = (Array.isArray(parsed) ? parsed : [parsed])
+      .filter(e => e && typeof e.id === "string" && /^\d+$/.test(e.id))
+      .map(({ id, url, title }) => ({
+        id,
+        url: typeof url === "string" ? url : null,
+        title: typeof title === "string" ? title : null,
+      }));
+  } catch {
+    alert("Format invalide. Le presse-papier doit contenir un JSON exporté par cette extension.");
     return;
   }
 
-  const current = await getHiddenIds();
-  const merged = [...new Set([...current, ...incoming])];
-  const added = merged.length - current.length;
-  await saveHiddenIds(merged);
+  if (incoming.length === 0) {
+    alert("Aucune annonce valide trouvée dans le presse-papier.");
+    return;
+  }
+
+  const current = await getHiddenAds();
+  const existingIds = new Set(current.map(a => a.id));
+  const toAdd = incoming.filter(a => !existingIds.has(a.id));
+
+  await saveHiddenAds([...current, ...toAdd]);
   render();
 
   const btn = document.getElementById("btn-import");
+  const added = toAdd.length;
   btn.textContent = added > 0 ? `+${added} ajouté${added > 1 ? "s" : ""}` : "Déjà présents";
   setTimeout(() => { btn.textContent = "Importer"; }, 2000);
 });

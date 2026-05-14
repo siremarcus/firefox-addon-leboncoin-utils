@@ -8,67 +8,86 @@ const STORAGE_KEY = "lbc_hidden_ads";
 const ATTR_AD_ID = "data-lbc-ad-id";
 const ATTR_PROCESSED = "data-lbc-processed";
 
+
 // ─── Utilitaires storage ────────────────────────────────────────────────────
 
-async function getHiddenIds() {
+async function getHiddenAds() {
   const result = await browser.storage.local.get(STORAGE_KEY);
-  return new Set(result[STORAGE_KEY] || []);
+  const raw = result[STORAGE_KEY] || [];
+  const map = new Map();
+  for (const entry of raw) {
+    if (typeof entry === "string") {
+      map.set(entry, new ItemEntry(entry));
+    } else {
+      map.set(entry.id, new ItemEntry(entry.id, entry.url, entry.title, entry.hiddenDate));
+    }
+  }
+  return map;
 }
 
-async function saveHiddenIds(ids) {
-  await browser.storage.local.set({ [STORAGE_KEY]: [...ids] });
+async function saveHiddenAds(adsMap) {
+  await browser.storage.local.set({ [STORAGE_KEY]: [...adsMap.values()] });
 }
 
-async function hideAd(adId) {
-  const ids = await getHiddenIds();
-  ids.add(adId);
-  await saveHiddenIds(ids);
+async function hideAd(adId, adUrl, adTitle) {
+  const ads = await getHiddenAds();
+  ads.set(adId, new ItemEntry(adId, adUrl, adTitle));
+  await saveHiddenAds(ads);
 }
 
 async function showAd(adId) {
-  const ids = await getHiddenIds();
-  ids.delete(adId);
-  await saveHiddenIds(ids);
+  const ads = await getHiddenAds();
+  ads.delete(adId);
+  await saveHiddenAds(ads);
 }
 
-// ─── Extraction de l'ID d'une annonce ──────────────────────────────────────
+// ─── Extraction des infos d'une annonce ────────────────────────────────────
 
-/**
- * Extrait l'identifiant unique d'une annonce depuis l'attribut href
- * d'un lien leboncoin. Ex: /annonces/offres/..._12345678.htm → "12345678"
- * Ou depuis l'attribut data-id / data-ad-id si présent.
- */
-function extractAdId(adElement) {
-  // Certaines versions du site exposent un attribut data-id directement
+function extractAdInfo(adElement) {
+  let id = null;
+  let url = null;
+  let title = null;
+
   for (const attr of ["data-id", "data-ad-id", "data-listing-id"]) {
     const v = adElement.getAttribute(attr);
-    if (v) return v;
+    if (v) { id = v; break; }
   }
 
-  // Sinon on cherche dans le premier lien href
   const link = adElement.querySelector("a[href]");
-  if (!link) return null;
+  if (link) {
+    const href = link.getAttribute("href");
+    if (!id) {
+      const matchHtm = href.match(/_(\d{6,})\.htm/);
+      if (matchHtm) id = matchHtm[1];
+      else {
+        const matchPath = href.match(/\/(\d{7,})/);
+        if (matchPath) id = matchPath[1];
+      }
+    }
+    url = link.href; // URL absolue réelle
+  }
 
-  const href = link.getAttribute("href");
-  // Format classique : /annonces/…_123456789.htm
-  const matchHtm = href.match(/_(\d{6,})\.htm/);
-  if (matchHtm) return matchHtm[1];
+  // L'article porte directement aria-label="Titre de l'annonce"
+  const ariaLabel = adElement.getAttribute("aria-label");
+  if (ariaLabel) {
+    title = ariaLabel.trim().slice(0, 80);
+  }
 
-  // Format alternatif : /p/1234567890 ou contient un long nombre
-  const matchPath = href.match(/\/(\d{7,})/);
-  if (matchPath) return matchPath[1];
+  if (!title) {
+    // Le <span> dans le lien a title="Voir l'annonce: Titre de l'annonce"
+    const spanTitle = adElement.querySelector("a[href] span[title]");
+    if (spanTitle) {
+      const raw = spanTitle.getAttribute("title").replace(/^Voir l'annonce\s*:\s*/i, "").trim();
+      if (raw) title = raw.slice(0, 80);
+    }
+  }
 
-  return null;
+  return { id, url, title };
 }
 
 // ─── Sélecteurs d'annonces ─────────────────────────────────────────────────
 
-/**
- * Retourne tous les éléments du DOM qui représentent une annonce
- * (non encore traités par notre extension).
- */
 function findAdElements() {
-  // leboncoin utilise des <article> ou des <li> contenant des liens d'annonces
   const candidates = document.querySelectorAll(
     `article:not([${ATTR_PROCESSED}]),
      li[data-qa-id]:not([${ATTR_PROCESSED}]),
@@ -80,7 +99,7 @@ function findAdElements() {
 
 // ─── Bouton "Masquer" ───────────────────────────────────────────────────────
 
-function createHideButton(adId, adElement) {
+function createHideButton(adInfo, adElement) {
   const btn = document.createElement("button");
   btn.className = "lbc-hide-btn";
   btn.title = "Masquer cette annonce";
@@ -100,8 +119,8 @@ function createHideButton(adId, adElement) {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    await hideAd(adId);
-    collapseAd(adElement, adId);
+    await hideAd(adInfo.id, adInfo.url, adInfo.title);
+    collapseAd(adElement, adInfo.id);
   });
 
   return btn;
@@ -113,7 +132,6 @@ function collapseAd(adElement, adId) {
   adElement.classList.add("lbc-ad-hidden");
   adElement.setAttribute(ATTR_AD_ID, adId);
 
-  // Remplace le contenu par une bannière "annonce masquée"
   let banner = adElement.querySelector(".lbc-hidden-banner");
   if (!banner) {
     banner = document.createElement("div");
@@ -138,24 +156,18 @@ function restoreAd(adElement) {
 
 // ─── Traitement d'un élément annonce ───────────────────────────────────────
 
-async function processAdElement(adElement, hiddenIds) {
-  // Marquer comme traité pour éviter les doublons
+async function processAdElement(adElement, hiddenAds) {
   adElement.setAttribute(ATTR_PROCESSED, "1");
 
-  const adId = extractAdId(adElement);
-  if (!adId) return;
+  const info = extractAdInfo(adElement);
+  if (!info.id) return;
 
-  // Cacher immédiatement si déjà masqué
-  if (hiddenIds.has(adId)) {
-    collapseAd(adElement, adId);
+  if (hiddenAds.has(info.id)) {
+    collapseAd(adElement, info.id);
     return;
   }
 
-  // Ajouter le bouton masquer
-  const btn = createHideButton(adId, adElement);
-
-  // Trouver le meilleur conteneur pour le bouton
-  // (on cherche un div de contrôles, sinon on l'ajoute sur l'article)
+  const btn = createHideButton(info, adElement);
   adElement.classList.add("lbc-ad-processed");
   adElement.appendChild(btn);
 }
@@ -163,10 +175,11 @@ async function processAdElement(adElement, hiddenIds) {
 // ─── Traitement de la page ──────────────────────────────────────────────────
 
 async function processPage() {
-  const hiddenIds = await getHiddenIds();
+  if (/^\/ad\//.test(location.pathname)) return;
+  const hiddenAds = await getHiddenAds();
   const ads = findAdElements();
   for (const ad of ads) {
-    await processAdElement(ad, hiddenIds);
+    await processAdElement(ad, hiddenAds);
   }
 }
 

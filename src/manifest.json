@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Leboncoin - Masquer des annonces",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Masquer les annonces indésirables sur leboncoin pour faciliter vos recherches récurrentes.",
   "author": "remy",
 
@@ -13,7 +13,7 @@
   "content_scripts": [
     {
       "matches": ["*://www.leboncoin.fr/*"],
-      "js": ["content.js"],
+      "js": ["item-entry.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }

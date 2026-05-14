@@ -40,6 +40,38 @@ src/
 
 Les sources TypeScript sont compilées vers `dist/` via esbuild (bundling) + tsc (type-check). Le dossier `dist/` n'est pas versionné.
 
+## Développement
+
+### Prérequis
+
+- Node.js 18+
+- Firefox
+
+### Mise en place
+
+```bash
+npm install
+```
+
+### Scripts
+
+| Commande          | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| `npm run build`   | Compile les sources TypeScript vers `dist/`                  |
+| `npm run dev`     | Compilation en watch + Firefox avec rechargement automatique |
+| `npm start`       | Build + lance Firefox sur leboncoin.fr                       |
+| `npm test`        | Lance les tests unitaires                                    |
+| `npm run package` | Génère le `.zip` dans `releases/`                            |
+
+### Workflow classique
+
+```bash
+npm start   # Build + lance Firefox
+npm test    # vérifie les sélecteurs DOM avec les samples
+```
+
+Les fichiers source sont dans `src/`. Le resultat du build est fénéré dans `dist/`, qui est ensuite empaqueté pour la distribution.
+
 ## Installation
 
 ### Temporaire (debug)

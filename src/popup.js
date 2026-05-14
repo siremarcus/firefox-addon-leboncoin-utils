@@ -88,4 +88,34 @@ document.getElementById("btn-export").addEventListener("click", async () => {
   }
 });
 
+document.getElementById("btn-import").addEventListener("click", async () => {
+  let text;
+  try {
+    text = await navigator.clipboard.readText();
+  } catch {
+    alert("Impossible de lire le presse-papier.");
+    return;
+  }
+
+  const incoming = text
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(s => /^\d+$/.test(s));
+
+  if (incoming.length === 0) {
+    alert("Aucun ID valide trouvé dans le presse-papier.");
+    return;
+  }
+
+  const current = await getHiddenIds();
+  const merged = [...new Set([...current, ...incoming])];
+  const added = merged.length - current.length;
+  await saveHiddenIds(merged);
+  render();
+
+  const btn = document.getElementById("btn-import");
+  btn.textContent = added > 0 ? `+${added} ajouté${added > 1 ? "s" : ""}` : "Déjà présents";
+  setTimeout(() => { btn.textContent = "Importer"; }, 2000);
+});
+
 render();

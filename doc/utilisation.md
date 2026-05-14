@@ -44,11 +44,18 @@ Cliquez sur l'icône de l'extension pour ouvrir le popup. Il affiche :
 | Compteur | Nombre total d'annonces actuellement masquées |
 | Liste des IDs | Chaque annonce masquée, avec un lien vers la page de l'annonce |
 | Bouton **Exporter** | Copie tous les IDs dans le presse-papier (un par ligne) |
+| Bouton **Importer** | Fusionne les IDs du presse-papier avec la liste existante |
 | Bouton **Tout effacer** | Ré-affiche toutes les annonces masquées en une seule action |
 
 ### Exporter la liste
 
-Le bouton **"Exporter"** copie les identifiants de toutes les annonces masquées dans le presse-papier. Vous pouvez coller le résultat dans un fichier texte pour en garder une trace.
+Le bouton **"Exporter"** copie les identifiants de toutes les annonces masquées dans le presse-papier (un identifiant par ligne). Vous pouvez coller le résultat dans un fichier texte pour en garder une trace ou le transférer sur un autre appareil.
+
+### Importer une liste
+
+Le bouton **"Importer"** lit le contenu du presse-papier et y extrait les identifiants numériques (séparés par des sauts de ligne ou des virgules). Les IDs trouvés sont fusionnés avec la liste existante sans créer de doublons. C'est le pendant de l'export : copiez une liste préalablement exportée, puis cliquez sur **"Importer"** pour la restaurer.
+
+Le bouton affiche le nombre d'entrées ajoutées (`+N ajouté(s)`) ou **"Déjà présents"** si tous les IDs étaient déjà dans la liste.
 
 ### Tout effacer
 

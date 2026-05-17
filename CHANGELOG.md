@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.14]
+
+- Paramètre de synchronisation Firefox Sync : les annonces masquées peuvent désormais être stockées via `browser.storage.sync` pour être partagées entre appareils (toggle dans les paramètres)
+
 ## [1.0.12]
 
 - Switch distribution to AMO (listed channel)

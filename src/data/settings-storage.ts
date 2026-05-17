@@ -16,6 +16,9 @@ export class ApplicationSettings {
     ) {
       settings.autoPurgeMaxDays = 180;
     }
+    if (typeof settings.useSync !== "boolean") {
+      settings.useSync = false;
+    }
   }
 
   /**

@@ -15,6 +15,7 @@ Extension Firefox (Android & Desktop) pour masquer les annonces indésirables su
 - Compatible avec le scroll infini (MutationObserver)
 - Popup de gestion : liste, ré-affichage individuel ou global, export des IDs
 - Purge automatique des annonces masquées trop anciennes (seuil configurable dans les paramètres)
+- Synchronisation Firefox Sync optionnelle pour partager les annonces masquées entre appareils
 
 ## Structure
 

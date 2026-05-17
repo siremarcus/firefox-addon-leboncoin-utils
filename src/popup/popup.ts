@@ -2,6 +2,7 @@ import { ApplicationSettingsDefinition } from "../data/settings";
 import { AnnonceEntry } from "../data/annonce-entry";
 import { HiddenAnnoncesStorage } from "../data/annonce-entry-storage";
 import { ApplicationSettings } from "../data/settings-storage";
+import { BrowserStorage } from "../data/browser-storage";
 
 // ─── Rendu ───────────────────────────────────────────────────────────────────
 
@@ -205,7 +206,19 @@ async function renderSettings(): Promise<void> {
   const settings = await ApplicationSettings.loadAsync();
   (document.getElementById("input-purge-days") as HTMLInputElement).value =
     String(settings.autoPurgeMaxDays);
+  const syncInput = document.getElementById("input-use-sync") as HTMLInputElement;
+  syncInput.checked = settings.useSync;
+  document.getElementById("label-use-sync")!.textContent = settings.useSync
+    ? "Firefox Sync"
+    : "Stockage local";
 }
+
+document.getElementById("input-use-sync")!.addEventListener("change", (e) => {
+  const checked = (e.target as HTMLInputElement).checked;
+  document.getElementById("label-use-sync")!.textContent = checked
+    ? "Firefox Sync"
+    : "Stockage local";
+});
 
 document
   .getElementById("btn-save-settings")!
@@ -215,9 +228,12 @@ document
       10,
     );
     if (isNaN(days) || days < 1) return;
+    const useSync = (document.getElementById("input-use-sync") as HTMLInputElement).checked;
     const settings = new ApplicationSettingsDefinition();
     settings.autoPurgeMaxDays = days;
+    settings.useSync = useSync;
     await ApplicationSettings.saveAsync(settings);
+    BrowserStorage.setSync(useSync);
     const btn = document.getElementById("btn-save-settings")!;
     btn.textContent = "Enregistré !";
     setTimeout(() => {
@@ -227,5 +243,9 @@ document
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-showPage("main");
-renderMain();
+(async () => {
+  const settings = await ApplicationSettings.loadAsync();
+  BrowserStorage.setSync(settings.useSync);
+  showPage("main");
+  renderMain();
+})();

@@ -6,6 +6,8 @@
 
 import { AnnonceEntry } from "../data/annonce-entry";
 import { HiddenAnnoncesStorage } from "../data/annonce-entry-storage";
+import { ApplicationSettings } from "../data/settings-storage";
+import { BrowserStorage } from "../data/browser-storage";
 import { HideAnnonceButton } from "./controls/hideAnnonceButton";
 import { LeboncoinDomParser } from "./lbc-dom-parser";
 
@@ -25,7 +27,10 @@ class ContentMain {
   /**
    * @description Démarre le script de contenu : enregistre les événements et traite la page initiale.
    */
-  public start(): void {
+  public async start(): Promise<void> {
+    const settings = await ApplicationSettings.loadAsync();
+    BrowserStorage.setSync(settings.useSync);
+
     // ─── Observation des mutations (scroll infini) ──────────────────────────────
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     const observer = new MutationObserver(() => {

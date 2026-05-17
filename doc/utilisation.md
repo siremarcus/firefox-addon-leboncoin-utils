@@ -46,7 +46,7 @@ Cliquez sur l'icône de l'extension pour ouvrir le popup. Il affiche :
 | Bouton **Exporter** | Copie tous les IDs dans le presse-papier (un par ligne) |
 | Bouton **Importer** | Fusionne les IDs du presse-papier avec la liste existante |
 | Bouton **Tout effacer** | Ré-affiche toutes les annonces masquées en une seule action |
-| Onglet **Paramètres** | Configure le seuil de purge automatique des anciennes annonces |
+| Onglet **Paramètres** | Configure la purge automatique et la synchronisation Firefox Sync |
 
 ### Exporter la liste
 
@@ -66,13 +66,22 @@ Le bouton **"Tout effacer"** demande une confirmation, puis supprime toutes les 
 
 L'onglet **Paramètres** du popup permet de configurer le nombre de jours après lequel une annonce masquée est automatiquement supprimée du stockage au démarrage de l'extension. La valeur par défaut est **180 jours**. Mettre la valeur à **0** désactive la purge automatique.
 
+### Paramètres — synchronisation Firefox Sync
+
+Le toggle **Synchronisation Firefox Sync** permet de choisir où sont stockées les annonces masquées :
+
+- **Désactivé (par défaut)** : stockage local (`browser.storage.local`). Les données restent sur l'appareil courant uniquement.
+- **Activé** : stockage synchronisé (`browser.storage.sync`). Les annonces masquées sont partagées entre tous vos appareils connectés au même compte Firefox.
+
+> **Note :** changer ce paramètre ne migre pas les données existantes. Les annonces masquées avant le changement restent dans l'ancien espace de stockage.
+
 ---
 
 ## Persistance des données
 
-Les annonces masquées sont **stockées localement** dans votre navigateur (via `browser.storage.local`). Elles persistent entre les sessions : si vous fermez et rouvrez Firefox, vos annonces masquées sont toujours mémorisées.
+Par défaut, les annonces masquées sont **stockées localement** dans votre navigateur (via `browser.storage.local`). Elles persistent entre les sessions : si vous fermez et rouvrez Firefox, vos annonces masquées sont toujours mémorisées.
 
-Les données ne quittent jamais votre appareil.
+Si vous activez la **synchronisation Firefox Sync** dans les paramètres, les données sont stockées via `browser.storage.sync` et partagées entre vos appareils connectés au même compte Firefox. Dans ce cas, les données transitent par les serveurs Mozilla conformément à leur politique de confidentialité.
 
 ---
 

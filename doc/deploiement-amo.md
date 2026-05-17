@@ -128,3 +128,18 @@ Avant de soumettre l'extension, vérifier les points suivants pour Android :
 - [Documentation web-ext](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/)
 - [Soumettre une extension — Extension Workshop](https://extensionworkshop.com/documentation/publish/submitting-an-add-on/)
 - [API de signature AMO](https://addons-server.readthedocs.io/en/latest/topics/api/signing.html)
+
+# Self-distribution
+
+Générer un fichier `.xpi` signé avec `web-ext sign` (Option B ci-dessus) pour une installation manuelle sur Firefox desktop ou Android (via `about:debugging`).
+
+Commencer par créer une api-key sur AMO ([Gestion des clés API](https://addons.mozilla.org/fr/developers/addon/api/key/)), puis :
+
+Creer un fichier `.env` à la racine du projet avec les clés API AMO (JWT) :
+
+```env
+AMO_API_KEY=
+AMO_API_SECRET=
+```
+
+Utiliser la tache vscode `Sign extension` (ou la commande `npm run sign`) pour générer le `.xpi` signé dans `dist/`.

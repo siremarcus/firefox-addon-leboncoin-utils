@@ -12,6 +12,9 @@ Thumbs.db
 *.swp
 *~
 
+# local config
+.env
+
 # Node
 node_modules
 

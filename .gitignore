@@ -8,6 +8,7 @@ Thumbs.db
 
 # Editors
 .vscode/
+!.vscode/tasks.json
 .idea/
 *.swp
 *~

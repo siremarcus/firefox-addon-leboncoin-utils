@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [1.0.12]
+
+- Switch distribution to AMO (listed channel)
+
+## [1.0.11]
+
+- Add and show ad location
+
+## [1.0.9]
+
+- Add counter badge
+- Internal refactoring (object control)
+
 ## [1.0.8]
 
 - internal refactoring to TS

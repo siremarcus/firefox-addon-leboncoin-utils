@@ -5,18 +5,18 @@ import { AnnonceEntry } from "../data/annonce-entry";
  * Se baser sur les smaple dans le dossier `sample/` pour ajuster les sélecteurs si nécessaire.
  */
 export class LeboncoinDomParser {
-  ATTR_ANNONCE_ID = "data-lbc-annonce-id";
-  ATTR_PROCESSED = "data-lbc-processed";
+  static ATTR_ANNONCE_ID = "data-lbc-annonce-id";
+  static ATTR_PROCESSED = "data-lbc-processed";
 
   /**
    * @description Retourne les éléments du DOM représentant des annonces non encore traitées.
    */
-  public findAnnonceElements(element: Document): Element[] {
+  public findAnnonceNotProcessedElements(element: Document): Element[] {
     const candidates = element.querySelectorAll(
-      `article:not([${this.ATTR_PROCESSED}]),
-     li[data-qa-id]:not([${this.ATTR_PROCESSED}]),
-     li[data-test-id]:not([${this.ATTR_PROCESSED}]),
-     [data-qa-id="aditem_container"]:not([${this.ATTR_PROCESSED}])`,
+      `article:not([${LeboncoinDomParser.ATTR_PROCESSED}]),
+     li[data-qa-id]:not([${LeboncoinDomParser.ATTR_PROCESSED}]),
+     li[data-test-id]:not([${LeboncoinDomParser.ATTR_PROCESSED}]),
+     [data-qa-id="aditem_container"]:not([${LeboncoinDomParser.ATTR_PROCESSED}])`,
     );
     return Array.from(candidates);
   }

@@ -78,8 +78,22 @@
   border-radius: 4px;
 }
 
-.lbc-hidden-banner span {
+.lbc-hidden-banner span,
+.lbc-hidden-banner-link {
   font-style: italic;
+}
+
+.lbc-hidden-banner-link {
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lbc-hidden-banner-link:hover {
+  text-decoration: underline;
 }
 
 /* ── Bouton "Ré-afficher" ── */

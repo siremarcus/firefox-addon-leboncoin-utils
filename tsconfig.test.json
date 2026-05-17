@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["webextension-polyfill", "node"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
+}

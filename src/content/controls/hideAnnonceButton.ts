@@ -35,7 +35,7 @@ export class HideAnnonceButton {
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await this.hideAnnonce(this.info, this.element);
+      await this.hideAnnonce(this.info);
     });
 
     this.element.classList.add("lbc-annonce-processed");
@@ -45,12 +45,8 @@ export class HideAnnonceButton {
   /**
    * @description Masque une annonce : persistence dans le local storage puis réduit son affichage à une bannière "Annonce masquée".
    * @param annonceInfo
-   * @param annonceElement
    */
-  async hideAnnonce(
-    annonceInfo: AnnonceEntry,
-    annonceElement: Element,
-  ): Promise<void> {
+  async hideAnnonce(annonceInfo: AnnonceEntry): Promise<void> {
     console.log(
       `[lbc] Masquage annonce : ${annonceInfo.id} — ${annonceInfo.title}`,
     );
@@ -62,6 +58,7 @@ export class HideAnnonceButton {
         annonceInfo.price,
         null,
         annonceInfo.sellerId,
+        annonceInfo.location,
       ),
     );
     this.collapseAnnonce();
@@ -80,11 +77,30 @@ export class HideAnnonceButton {
       banner = document.createElement("div");
       banner.className = "lbc-hidden-banner";
 
-      const span = document.createElement("span");
-      span.title = this.info.title ?? "";
-      span.textContent = this.info.title
+      const titleText = this.info.title
         ? this.info.title.slice(0, 60)
         : "Annonce masquée";
+      const locationText = this.info.location ? ` — ${this.info.location}` : "";
+      const labelText = titleText + locationText;
+
+      const safeUrl =
+        this.info.url && /^https?:\/\//.test(this.info.url)
+          ? this.info.url
+          : null;
+      let label: HTMLAnchorElement | HTMLSpanElement;
+      if (safeUrl) {
+        const a = document.createElement("a");
+        a.href = safeUrl;
+        a.title = this.info.title ?? "";
+        a.className = "lbc-hidden-banner-link";
+        a.textContent = labelText;
+        label = a;
+      } else {
+        const span = document.createElement("span");
+        span.title = this.info.title ?? "";
+        span.textContent = labelText;
+        label = span;
+      }
 
       const showBtn = document.createElement("button");
       showBtn.className = "lbc-show-btn";
@@ -98,7 +114,7 @@ export class HideAnnonceButton {
         this.restoreAnnonce();
       });
 
-      banner.appendChild(span);
+      banner.appendChild(label);
       banner.appendChild(showBtn);
       this.element.appendChild(banner);
     }

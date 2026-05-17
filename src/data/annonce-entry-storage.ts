@@ -29,6 +29,7 @@ export class HiddenAnnoncesStorage {
           entry.price ?? null,
           entry.hiddenDate,
           entry.sellerId ?? null,
+          entry.location ?? null,
         ),
     );
   }

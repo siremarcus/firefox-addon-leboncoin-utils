@@ -12,7 +12,7 @@ function loadSample(
     "utf-8",
   );
   const doc = new DOMParser().parseFromString(html, "text/html");
-  const articles = domParser.findAnnonceElements(doc);
+  const articles = domParser.findAnnonceNotProcessedElements(doc);
   if (articles.length === 0)
     throw new Error(`Aucun <article> trouvé dans ${filename}`);
   return articles;
@@ -47,6 +47,14 @@ describe("LeboncoinDomParser", () => {
         "/ad/equipement_caravaning/3188820134",
       );
     });
+
+    it("extrait la localisation", () => {
+      expect(parser.extractAnnonceInfo(article)?.location).toBe("Vannes 56000");
+    });
+
+    it("sellerId est null (pas de boutique)", () => {
+      expect(parser.extractAnnonceInfo(article)?.sellerId).toBeNull();
+    });
   });
 
   describe("annonces-list.html", () => {
@@ -74,6 +82,14 @@ describe("LeboncoinDomParser", () => {
       expect(parser.extractAnnonceInfo(article)?.url).toContain(
         "/ad/ameublement/3114459690",
       );
+    });
+
+    it("extrait la localisation", () => {
+      expect(parser.extractAnnonceInfo(article)?.location).toBe("Paris 75019");
+    });
+
+    it("sellerId est null (pas de lien boutique dans la carte)", () => {
+      expect(parser.extractAnnonceInfo(article)?.sellerId).toBeNull();
     });
   });
 });

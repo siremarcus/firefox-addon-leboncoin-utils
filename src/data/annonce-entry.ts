@@ -12,6 +12,8 @@ export class AnnonceEntry {
   price: string | null;
   // Nom ou identifiant du vendeur (slug boutique ou nom), pour usage futur (masquage par vendeur)
   sellerId: string | null;
+  // Localisation de l'annonce (ex: "Paris 75019")
+  location: string | null;
   // ISO string de la date à laquelle l'annonce a été masquée
   hiddenDate: string;
 
@@ -22,12 +24,14 @@ export class AnnonceEntry {
     price: string | null = null,
     hiddenDate: string | null = null,
     sellerId: string | null = null,
+    location: string | null = null,
   ) {
     this.id = id;
     this.url = url;
     this.title = title ? title.slice(0, 80) : null;
     this.price = price;
     this.sellerId = sellerId ? sellerId.slice(0, 80) : null;
+    this.location = location ? location.slice(0, 80) : null;
     this.hiddenDate = hiddenDate ?? new Date().toISOString();
   }
 }

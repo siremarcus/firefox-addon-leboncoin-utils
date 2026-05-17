@@ -55,7 +55,8 @@ async function renderMain(): Promise<void> {
       .join(" — ");
 
     let label: HTMLAnchorElement | HTMLSpanElement;
-    const safeUrl = annonce.url && /^https?:\/\//.test(annonce.url) ? annonce.url : null;
+    const safeUrl =
+      annonce.url && /^https?:\/\//.test(annonce.url) ? annonce.url : null;
     if (safeUrl) {
       const a = document.createElement("a");
       a.href = safeUrl;
@@ -74,6 +75,7 @@ async function renderMain(): Promise<void> {
     }
     label.textContent =
       annonce.price +
+      (annonce.location ? ` (${annonce.location})` : "") +
       (annonce.title ? ` - ${annonce.title.slice(0, 60)}` : `#${annonce.id}`);
 
     const btnRestore = document.createElement("button");

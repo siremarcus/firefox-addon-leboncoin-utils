@@ -36,8 +36,9 @@ export class LeboncoinDomParser {
     let title: string | null = this.findTitle(annonceElement);
     let price: string | null = this.findPrice(annonceElement);
     let sellerId: string | null = this.findSellerId(annonceElement);
+    let location: string | null = this.findLocation(annonceElement);
 
-    return new AnnonceEntry(id!, url, title, price, null, sellerId);
+    return new AnnonceEntry(id!, url, title, price, null, sellerId, location);
   }
 
   private findId(annonceElement: Element): string | null {
@@ -80,6 +81,16 @@ export class LeboncoinDomParser {
       }
     }
     return title;
+  }
+
+  private findLocation(annonceElement: Element): string | null {
+    const srOnlyEls = Array.from(annonceElement.querySelectorAll("p.sr-only"));
+    for (const el of srOnlyEls) {
+      const text = el.textContent?.trim() ?? "";
+      const match = text.match(/^Situ[ée]e?\s+à\s+(.+)\.?$/i);
+      if (match) return match[1].replace(/\.$/, "").trim();
+    }
+    return null;
   }
 
   private findSellerId(annonceElement: Element): string | null {

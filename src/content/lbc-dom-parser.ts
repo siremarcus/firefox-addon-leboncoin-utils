@@ -35,8 +35,9 @@ export class LeboncoinDomParser {
     let url: string | null = this.findUrl(annonceElement);
     let title: string | null = this.findTitle(annonceElement);
     let price: string | null = this.findPrice(annonceElement);
+    let sellerId: string | null = this.findSellerId(annonceElement);
 
-    return new AnnonceEntry(id!, url, title, price);
+    return new AnnonceEntry(id!, url, title, price, null, sellerId);
   }
 
   private findId(annonceElement: Element): string | null {
@@ -79,6 +80,24 @@ export class LeboncoinDomParser {
       }
     }
     return title;
+  }
+
+  private findSellerId(annonceElement: Element): string | null {
+    // Boutique link (pro sellers): <a href="/boutique/{slug}/...">
+    const boutiqueLink = annonceElement.querySelector('a[href*="/boutique/"]');
+    if (boutiqueLink) {
+      const href = boutiqueLink.getAttribute("href")!;
+      const match = href.match(/\/boutique\/([^/?#]+)/);
+      if (match) return match[1];
+    }
+    // Fallback: sr-only text starting with "Vendeur :" or store name patterns
+    const srOnlyEls = Array.from(annonceElement.querySelectorAll("p.sr-only"));
+    for (const el of srOnlyEls) {
+      const text = el.textContent?.trim() ?? "";
+      const match = text.match(/^Vendeur\s*:\s*(.+)/i);
+      if (match) return match[1].trim().slice(0, 80);
+    }
+    return null;
   }
 
   private findPrice(annonceElement: Element): string | null {

@@ -30,7 +30,7 @@ class ContentMain {
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     const observer = new MutationObserver(() => {
       if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => main.processPage(), 300);
+      debounceTimer = setTimeout(() => main.processPageAndUpdateBadge(), 300);
     });
 
     observer.observe(document.body, {
@@ -38,7 +38,13 @@ class ContentMain {
       subtree: true,
     });
     // ─── Traitement initial de la page ─────────────────────────────────────────
-    HiddenAnnoncesStorage.purgeOldAsync().then(() => main.processPage());
+    HiddenAnnoncesStorage.purgeOldAsync().then(() => main.processPageAndUpdateBadge());
+  }
+
+  private async processPageAndUpdateBadge(): Promise<void> {
+    await this.processPage();
+    const count = document.querySelectorAll(".lbc-annonce-hidden").length;
+    browser.runtime.sendMessage({ type: "updateBadge", count });
   }
 
   /**

@@ -1,8 +1,8 @@
 {
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
-    "build": "npm run clean && tsc --noEmit && esbuild src/popup/popup.ts src/content/content.ts --bundle --outdir=dist --outbase=src --format=iife && node scripts/copy-static.mjs",
-    "dev": "concurrently \"tsc --noEmit --watch\" \"esbuild src/popup/popup.ts src/content/content.ts --bundle --outdir=dist --outbase=src --format=iife --watch\" \"web-ext run --source-dir dist/ --start-url https://www.leboncoin.fr/\"",
+    "build": "npm run clean && tsc --noEmit && esbuild src/popup/popup.ts src/content/content.ts src/background/background.ts --bundle --outdir=dist --outbase=src --format=iife && node scripts/copy-static.mjs",
+    "dev": "concurrently \"tsc --noEmit --watch\" \"esbuild src/popup/popup.ts src/content/content.ts src/background/background.ts --bundle --outdir=dist --outbase=src --format=iife --watch\" \"web-ext run --source-dir dist/ --start-url https://www.leboncoin.fr/\"",
     "start": "npm run build && web-ext run --source-dir dist/ --start-url https://www.leboncoin.fr/",
     "package": "npm run build && web-ext build --source-dir dist/ --artifacts-dir releases/ --overwrite-dest",
     "sign": "npm run build && web-ext sign --source-dir dist/ --artifacts-dir releases/ --channel=unlisted --api-key=$AMO_API_KEY --api-secret=$AMO_API_SECRET",

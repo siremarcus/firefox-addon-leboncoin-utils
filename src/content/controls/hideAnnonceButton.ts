@@ -60,6 +60,8 @@ export class HideAnnonceButton {
         annonceInfo.url,
         annonceInfo.title,
         annonceInfo.price,
+        null,
+        annonceInfo.sellerId,
       ),
     );
     this.collapseAnnonce();
